@@ -139,6 +139,8 @@ const initLocalState: InitLocalState = async ({
       featureFlags.includes(GQLFEATURE_FLAG.COMMENT_SEEN),
       "enableCommentSeen"
     );
+
+    localRecord.setValue(Boolean(config?.amp), "amp");
   });
 };
 
