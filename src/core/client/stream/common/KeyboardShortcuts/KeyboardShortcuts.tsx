@@ -48,9 +48,9 @@ const matchTraverseOptions = (stop: KeyStop, options: TraverseOptions) => {
   return true;
 };
 
-const getKeyStops = () => {
+const getKeyStops = (window: Window) => {
   const stops: KeyStop[] = [];
-  document
+  window.document
     .querySelectorAll<HTMLElement>("[data-key-stop]")
     .forEach((el) => stops.push(toKeyStop(el)));
   return stops;
@@ -76,10 +76,11 @@ const getLastKeyStop = (stops: KeyStop[], options: TraverseOptions = {}) => {
 };
 
 const findNextKeyStop = (
+  window: Window,
   currentStop: KeyStop | null,
   options: TraverseOptions = {}
 ): KeyStop | null => {
-  const stops = getKeyStops();
+  const stops = getKeyStops(window);
   if (stops.length === 0) {
     return null;
   }
@@ -110,10 +111,11 @@ const findNextKeyStop = (
 };
 
 const findPreviousKeyStop = (
+  window: Window,
   currentStop: KeyStop | null,
   options: TraverseOptions = {}
 ): KeyStop | null => {
-  const stops = getKeyStops();
+  const stops = getKeyStops(window);
   if (stops.length === 0) {
     return null;
   }
@@ -144,7 +146,7 @@ const findPreviousKeyStop = (
 };
 
 const KeyboardShortcuts: FunctionComponent = ({ children }) => {
-  const { pym, relayEnvironment } = useCoralContext();
+  const { pym, relayEnvironment, renderWindow } = useCoralContext();
   const commentSeenEnabled = useCommentSeenEnabled();
   useEffect(() => {
     if (!pym) {
@@ -156,7 +158,7 @@ const KeyboardShortcuts: FunctionComponent = ({ children }) => {
 
       const currentCommentID = lookup(relayEnvironment, LOCAL_ID)
         .commentWithTraversalFocus;
-      const currentCommentElement = document.getElementById(
+      const currentCommentElement = renderWindow.document.getElementById(
         computeCommentElementID(currentCommentID)
       );
       const currentStop =
@@ -188,16 +190,16 @@ const KeyboardShortcuts: FunctionComponent = ({ children }) => {
       let stop: KeyStop | null = null;
       if (data.shiftKey) {
         if (data.key === "C") {
-          stop = findPreviousKeyStop(currentStop);
+          stop = findPreviousKeyStop(renderWindow, currentStop);
         } else if (commentSeenEnabled && data.key === "Z") {
-          stop = findPreviousKeyStop(currentStop, {
+          stop = findPreviousKeyStop(renderWindow, currentStop, {
             skipSeen: true,
           });
         }
       } else if (data.key === "c") {
-        stop = findNextKeyStop(currentStop);
+        stop = findNextKeyStop(renderWindow, currentStop);
       } else if (commentSeenEnabled && data.key === "z") {
-        stop = findNextKeyStop(currentStop, {
+        stop = findNextKeyStop(renderWindow, currentStop, {
           skipSeen: true,
         });
       }
@@ -206,14 +208,16 @@ const KeyboardShortcuts: FunctionComponent = ({ children }) => {
         return;
       }
       const offset =
-        document.getElementById(stop.id)!.getBoundingClientRect().top +
-        window.pageYOffset -
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
+        renderWindow.document.getElementById(stop.id)!.getBoundingClientRect()
+          .top +
+        renderWindow.pageYOffset -
         150;
       pym.scrollParentToChildPos(offset);
 
       if (stop.isLoadMore) {
         stop.element.click();
-        const prevStop = findPreviousKeyStop(stop, {
+        const prevStop = findPreviousKeyStop(renderWindow, stop, {
           skipLoadMore: true,
         });
         if (prevStop) {
@@ -225,13 +229,13 @@ const KeyboardShortcuts: FunctionComponent = ({ children }) => {
     };
 
     const unsubscribe = onPymMessage(pym, "keypress", handle);
-    window.addEventListener("keypress", handle);
+    renderWindow.addEventListener("keypress", handle);
 
     return () => {
       unsubscribe();
-      window.removeEventListener("keypress", handle);
+      renderWindow.removeEventListener("keypress", handle);
     };
-  }, [commentSeenEnabled, pym, relayEnvironment]);
+  }, [commentSeenEnabled, pym, relayEnvironment, renderWindow]);
 
   return null;
 };

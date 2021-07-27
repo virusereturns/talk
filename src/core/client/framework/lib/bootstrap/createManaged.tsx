@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import { Localized } from "@fluent/react/compat";
 import { EventEmitter2 } from "eventemitter2";
 import { noop } from "lodash";
@@ -29,6 +30,8 @@ import {
   createSessionStorage,
   PromisifiedStorage,
 } from "coral-framework/lib/storage";
+import areWeInIframe from "coral-framework/utils/areWeInIframe";
+import getLocationOrigin from "coral-framework/utils/getLocationOrigin";
 import { ClickFarAwayRegister } from "coral-ui/components/v2/ClickOutside";
 
 import {
@@ -119,17 +122,6 @@ export const timeagoFormatter: Formatter = (value, unit, suffix) => {
   );
 };
 
-/**
- * Returns true if we are in an iframe.
- */
-function areWeInIframe() {
-  try {
-    return window.self !== window.top;
-  } catch (e) {
-    return true;
-  }
-}
-
 function createRelayEnvironment(
   subscriptionClient: ManagedSubscriptionClient,
   clientID: string,
@@ -147,6 +139,7 @@ function createRelayEnvironment(
   };
   const environment = new Environment({
     network: createNetwork(
+      `${getLocationOrigin(window)}/api/graphql`,
       subscriptionClient,
       clientID,
       accessTokenProvider,
@@ -237,7 +230,7 @@ function createManagedCoralContextProvider(
         environment: newContext.relayEnvironment,
         context: newContext,
         auth,
-        staticConfig: getStaticConfig(),
+        staticConfig: getStaticConfig(window),
       });
 
       // Update the subscription client access token.
@@ -295,12 +288,12 @@ function createManagedCoralContextProvider(
 function resolveLocalStorage(
   postMessage?: PostMessageService
 ): PromisifiedStorage {
-  if (postMessage && areWeInIframe()) {
+  if (postMessage && areWeInIframe(window)) {
     // Use local storage over postMessage when we are in an iframe.
     return createPostMessageStorage(postMessage, "localStorage");
   }
   // Use promisified, prefixed local storage.
-  return createPromisifiedStorage(createLocalStorage());
+  return createPromisifiedStorage(createLocalStorage(window));
 }
 
 /**
@@ -309,12 +302,12 @@ function resolveLocalStorage(
 function resolveSessionStorage(
   postMessage?: PostMessageService
 ): PromisifiedStorage {
-  if (postMessage && areWeInIframe()) {
+  if (postMessage && areWeInIframe(window)) {
     // Use session storage over postMessage when we are in an iframe.
     return createPostMessageStorage(postMessage, "sessionStorage");
   }
   // Use promisified, prefixed session storage.
-  return createPromisifiedStorage(createSessionStorage());
+  return createPromisifiedStorage(createSessionStorage(window));
 }
 /**
  * resolveIndexedDBStorage decides which indexeddb storage to use in the context
@@ -322,12 +315,12 @@ function resolveSessionStorage(
 function resolveIndexedDBStorage(
   postMessage?: PostMessageService
 ): PromisifiedStorage<any> {
-  if (postMessage && areWeInIframe()) {
+  if (postMessage && areWeInIframe(window)) {
     // Use indexeddb storage over postMessage when we are in an iframe.
     return createPostMessageStorage(postMessage, "indexedDB");
   }
   // Use promisified, prefixed session storage.
-  return createIndexedDBStorage("keyvalue");
+  return createIndexedDBStorage("keyvalue", window.indexedDB);
 }
 
 function resolveGraphQLSubscriptionURI(
@@ -357,13 +350,14 @@ export default async function createManaged({
   tokenRefreshProvider,
   reporterFeedbackPrompt = false,
 }: CreateContextArguments): Promise<ComponentType> {
+  const browserInfo = getBrowserInfo(window);
   // Load any polyfills that are required.
-  await injectConditionalPolyfills();
+  await injectConditionalPolyfills(window, browserInfo);
 
   // Potentially inject react-axe for runtime a11y checks.
-  await potentiallyInjectAxe(pym?.parentUrl);
+  await potentiallyInjectAxe(pym?.parentUrl, browserInfo);
 
-  const reporter = createReporter({ reporterFeedbackPrompt });
+  const reporter = createReporter(window, { reporterFeedbackPrompt });
   // Set error reporter.
   if (reporter) {
     setGlobalErrorReporter(reporter);
@@ -378,6 +372,7 @@ export default async function createManaged({
   }
 
   const postMessage = new PostMessageService(
+    window,
     "coral",
     window.parent,
     pym ? getOrigin(pym.parentUrl) : "*"
@@ -405,7 +400,7 @@ export default async function createManaged({
   }
 
   const localeBundles = await generateBundles(locales, localesData);
-  await polyfillIntlLocale(locales);
+  await polyfillIntlLocale(locales, browserInfo);
 
   const localStorage = resolveLocalStorage(postMessage);
 
@@ -415,7 +410,7 @@ export default async function createManaged({
   /** clientID is sent to the server with every request */
   const clientID = uuid();
 
-  const staticConfig = getStaticConfig();
+  const staticConfig = getStaticConfig(window);
 
   // websocketEndpoint points to our graphql server's live endpoint.
   const graphQLSubscriptionURI = resolveGraphQLSubscriptionURI(staticConfig);
@@ -448,7 +443,7 @@ export default async function createManaged({
     localStorage,
     sessionStorage: resolveSessionStorage(postMessage),
     indexedDBStorage: resolveIndexedDBStorage(postMessage),
-    browserInfo: getBrowserInfo(),
+    browserInfo,
     uuidGenerator: uuid,
     // Noop, this is later replaced by the
     // managed CoralContextProvider.
@@ -457,6 +452,8 @@ export default async function createManaged({
     // managed CoralContextProvider.
     changeLocale: (locale?: LanguageCode) => Promise.resolve(),
     tokenRefreshProvider,
+    window,
+    renderWindow: window,
   };
 
   // Initialize local state.
