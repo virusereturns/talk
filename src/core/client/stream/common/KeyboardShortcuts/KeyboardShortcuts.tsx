@@ -1,20 +1,25 @@
-import { FunctionComponent, useEffect } from "react";
+import React, { FunctionComponent, useCallback, useEffect } from "react";
 
 import { onPymMessage } from "coral-framework/helpers";
 import { useCoralContext } from "coral-framework/lib/bootstrap";
 import { globalErrorReporter } from "coral-framework/lib/errors";
 import { LOCAL_ID } from "coral-framework/lib/relay/localState";
 import lookup from "coral-framework/lib/relay/lookup";
-
 import computeCommentElementID from "coral-stream/tabs/Comments/Comment/computeCommentElementID";
 import useCommentSeenEnabled from "coral-stream/tabs/Comments/commentSeen/useCommentSeenEnabled";
+import useAMP from "coral-stream/tabs/Comments/helpers/useAMP";
+import { Flex } from "coral-ui/components/v2";
+import { MatchMedia } from "coral-ui/components/v2/MatchMedia/MatchMedia";
+import { Button } from "coral-ui/components/v3/Button/Button";
+
+import MobileToolbar from "../MobileToolbar";
 
 export interface KeyboardEventData {
   key: string;
-  shiftKey: boolean;
-  altKey: boolean;
-  ctrlKey: boolean;
-  metaKey: boolean;
+  shiftKey?: boolean;
+  altKey?: boolean;
+  ctrlKey?: boolean;
+  metaKey?: boolean;
 }
 
 interface KeyStop {
@@ -147,13 +152,14 @@ const findPreviousKeyStop = (
 
 const KeyboardShortcuts: FunctionComponent = ({ children }) => {
   const { pym, relayEnvironment, renderWindow } = useCoralContext();
+  const amp = useAMP();
   const commentSeenEnabled = useCommentSeenEnabled();
-  useEffect(() => {
-    if (!pym) {
-      return;
-    }
+  const handle = useCallback(
+    (event: KeyboardEvent | string) => {
+      if (!pym) {
+        return;
+      }
 
-    const handle = (event: KeyboardEvent | string) => {
       let data: KeyboardEventData;
 
       const currentCommentID = lookup(relayEnvironment, LOCAL_ID)
@@ -226,7 +232,14 @@ const KeyboardShortcuts: FunctionComponent = ({ children }) => {
       } else {
         stop.element.focus();
       }
-    };
+    },
+    [commentSeenEnabled, pym, relayEnvironment, renderWindow]
+  );
+
+  useEffect(() => {
+    if (!pym) {
+      return;
+    }
 
     const unsubscribe = onPymMessage(pym, "keypress", handle);
     renderWindow.addEventListener("keypress", handle);
@@ -235,9 +248,60 @@ const KeyboardShortcuts: FunctionComponent = ({ children }) => {
       unsubscribe();
       renderWindow.removeEventListener("keypress", handle);
     };
-  }, [commentSeenEnabled, pym, relayEnvironment, renderWindow]);
+  }, [commentSeenEnabled, handle, pym, relayEnvironment, renderWindow]);
 
-  return null;
+  if (amp) {
+    return null;
+  }
+
+  return (
+    <MatchMedia lteWidth="mobile">
+      <MobileToolbar>
+        <Flex justifyContent="space-around" alignItems="center">
+          <Button
+            variant="filled"
+            color="secondary"
+            onClick={() =>
+              handle(
+                JSON.stringify({
+                  key: "C",
+                  shiftKey: true,
+                })
+              )
+            }
+          >
+            Shift+C
+          </Button>
+          <Button
+            variant="filled"
+            color="secondary"
+            onClick={() =>
+              handle(
+                JSON.stringify({
+                  key: "c",
+                })
+              )
+            }
+          >
+            c
+          </Button>
+          <Button
+            variant="filled"
+            color="secondary"
+            onClick={() =>
+              handle(
+                JSON.stringify({
+                  key: "z",
+                })
+              )
+            }
+          >
+            z
+          </Button>
+        </Flex>
+      </MobileToolbar>
+    </MatchMedia>
+  );
 };
 
 export default KeyboardShortcuts;

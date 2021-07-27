@@ -109,7 +109,7 @@ export class StreamEmbed {
     // Create the decorators that will be used by the controller.
     const decorators: ReadonlyArray<Decorator> = [
       withIOSSafariWidthWorkaround,
-      withAutoHeight(!!config.amp),
+      withAutoHeight(Boolean(config.amp)),
       withClickEvent,
       withSetCommentID,
       withEventEmitter(config.eventEmitter, config.enableDeprecatedEvents),
@@ -120,6 +120,7 @@ export class StreamEmbed {
       withConfig({
         accessToken: config.accessToken,
         bodyClassName: config.bodyClassName,
+        amp: Boolean(config.amp),
       }),
       withKeypressEvent,
       withRefreshAccessToken(config.refreshAccessToken),
@@ -151,10 +152,17 @@ export class StreamEmbed {
         this.render();
       } else {
         // When the element is in view, then render the embed.
-        this.clearAutoRender = onIntersect(element, () => {
-          this.clearAutoRender = null;
-          this.render();
-        });
+        this.clearAutoRender = onIntersect(
+          element,
+          () => {
+            this.clearAutoRender = null;
+            this.render();
+          },
+          {
+            rootMargin: "100px",
+            threshold: 1.0,
+          }
+        );
       }
     }
   }
