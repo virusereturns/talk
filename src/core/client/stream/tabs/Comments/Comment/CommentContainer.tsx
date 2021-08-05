@@ -237,6 +237,10 @@ export const CommentContainer: FunctionComponent<Props> = ({
       return false;
     }
 
+    if (story.isArchiving || story.isArchived) {
+      return false;
+    }
+
     // Can't edit a comment if the editable date is before the current date!
     if (
       !comment.editing.editableUntil ||
@@ -330,7 +334,9 @@ export const CommentContainer: FunctionComponent<Props> = ({
     !!viewer &&
     story.canModerate &&
     can(viewer, Ability.MODERATE) &&
-    !hideModerationCarat;
+    !hideModerationCarat &&
+    !story.isArchiving &&
+    !story.isArchived;
 
   const flattenReplies = settings.featureFlags.includes(
     GQLFEATURE_FLAG.FLATTEN_REPLIES
@@ -620,7 +626,11 @@ export const CommentContainer: FunctionComponent<Props> = ({
                     settings={settings}
                     viewer={viewer}
                     readOnly={
-                      isViewerBanned || isViewerSuspended || isViewerWarned
+                      isViewerBanned ||
+                      isViewerSuspended ||
+                      isViewerWarned ||
+                      story.isArchived ||
+                      story.isArchiving
                     }
                     className={cn(
                       styles.actionButton,
@@ -643,7 +653,10 @@ export const CommentContainer: FunctionComponent<Props> = ({
                         onClick={toggleShowReplyDialog}
                         active={showReplyDialog}
                         disabled={
-                          settings.disableCommenting.enabled || story.isClosed
+                          settings.disableCommenting.enabled ||
+                          story.isClosed ||
+                          story.isArchived ||
+                          story.isArchiving
                         }
                         className={cn(
                           styles.actionButton,
@@ -665,7 +678,9 @@ export const CommentContainer: FunctionComponent<Props> = ({
                   {!isViewerBanned &&
                     !isViewerSuspended &&
                     !isViewerWarned &&
-                    !hideReportButton && (
+                    !hideReportButton &&
+                    !story.isArchived &&
+                    !story.isArchiving && (
                       <ReportButton
                         onClick={toggleShowReportFlow}
                         open={showReportFlow}
@@ -750,6 +765,8 @@ const enhanced = withContext(({ eventEmitter }) => ({ eventEmitter }))(
           settings {
             mode
           }
+          isArchiving
+          isArchived
           ...CaretContainer_story
           ...EditCommentFormContainer_story
           ...PermalinkButtonContainer_story
