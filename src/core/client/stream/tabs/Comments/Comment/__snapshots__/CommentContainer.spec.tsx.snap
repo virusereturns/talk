@@ -117,6 +117,8 @@ exports[`hide reply button 1`] = `
                   Object {
                     "canModerate": false,
                     "id": "story-0",
+                    "isArchived": false,
+                    "isArchiving": false,
                     "isClosed": false,
                     "settings": Object {
                       "mode": "COMMENTS",
@@ -307,6 +309,8 @@ exports[`hide reply button 1`] = `
               Object {
                 "canModerate": false,
                 "id": "story-0",
+                "isArchived": false,
+                "isArchiving": false,
                 "isClosed": false,
                 "settings": Object {
                   "mode": "COMMENTS",
@@ -504,6 +508,8 @@ exports[`renders body only 1`] = `
                   Object {
                     "canModerate": false,
                     "id": "story-0",
+                    "isArchived": false,
+                    "isArchiving": false,
                     "isClosed": false,
                     "settings": Object {
                       "mode": "COMMENTS",
@@ -694,6 +700,8 @@ exports[`renders body only 1`] = `
               Object {
                 "canModerate": false,
                 "id": "story-0",
+                "isArchived": false,
+                "isArchiving": false,
                 "isClosed": false,
                 "settings": Object {
                   "mode": "COMMENTS",
@@ -892,6 +900,8 @@ exports[`renders disabled reply when commenting has been disabled 1`] = `
                   Object {
                     "canModerate": false,
                     "id": "story-0",
+                    "isArchived": false,
+                    "isArchiving": false,
                     "isClosed": false,
                     "settings": Object {
                       "mode": "COMMENTS",
@@ -1082,6 +1092,8 @@ exports[`renders disabled reply when commenting has been disabled 1`] = `
               Object {
                 "canModerate": false,
                 "id": "story-0",
+                "isArchived": false,
+                "isArchiving": false,
                 "isClosed": false,
                 "settings": Object {
                   "mode": "COMMENTS",
@@ -1280,6 +1292,8 @@ exports[`renders disabled reply when story is closed 1`] = `
                   Object {
                     "canModerate": false,
                     "id": "story-0",
+                    "isArchived": false,
+                    "isArchiving": false,
                     "isClosed": true,
                     "settings": Object {
                       "mode": "COMMENTS",
@@ -1470,6 +1484,8 @@ exports[`renders disabled reply when story is closed 1`] = `
               Object {
                 "canModerate": false,
                 "id": "story-0",
+                "isArchived": false,
+                "isArchiving": false,
                 "isClosed": true,
                 "settings": Object {
                   "mode": "COMMENTS",
@@ -1672,6 +1688,8 @@ exports[`renders in reply to 1`] = `
                   Object {
                     "canModerate": false,
                     "id": "story-0",
+                    "isArchived": false,
+                    "isArchiving": false,
                     "isClosed": false,
                     "settings": Object {
                       "mode": "COMMENTS",
@@ -1879,6 +1897,8 @@ exports[`renders in reply to 1`] = `
               Object {
                 "canModerate": false,
                 "id": "story-0",
+                "isArchived": false,
+                "isArchiving": false,
                 "isClosed": false,
                 "settings": Object {
                   "mode": "COMMENTS",
@@ -2081,6 +2101,8 @@ exports[`renders username and body 1`] = `
                   Object {
                     "canModerate": false,
                     "id": "story-0",
+                    "isArchived": false,
+                    "isArchiving": false,
                     "isClosed": false,
                     "settings": Object {
                       "mode": "COMMENTS",
@@ -2271,6 +2293,8 @@ exports[`renders username and body 1`] = `
               Object {
                 "canModerate": false,
                 "id": "story-0",
+                "isArchived": false,
+                "isArchiving": false,
                 "isClosed": false,
                 "settings": Object {
                   "mode": "COMMENTS",
@@ -2469,6 +2493,8 @@ exports[`renders with tombstone when comment has been deleted 1`] = `
                   Object {
                     "canModerate": false,
                     "id": "story-0",
+                    "isArchived": false,
+                    "isArchiving": false,
                     "isClosed": false,
                     "settings": Object {
                       "mode": "COMMENTS",
@@ -2659,6 +2685,8 @@ exports[`renders with tombstone when comment has been deleted 1`] = `
               Object {
                 "canModerate": false,
                 "id": "story-0",
+                "isArchived": false,
+                "isArchiving": false,
                 "isClosed": false,
                 "settings": Object {
                   "mode": "COMMENTS",
@@ -2857,6 +2885,8 @@ exports[`shows conversation link 1`] = `
                   Object {
                     "canModerate": false,
                     "id": "story-0",
+                    "isArchived": false,
+                    "isArchiving": false,
                     "isClosed": false,
                     "settings": Object {
                       "mode": "COMMENTS",
@@ -3053,6 +3083,8 @@ exports[`shows conversation link 1`] = `
               Object {
                 "canModerate": false,
                 "id": "story-0",
+                "isArchived": false,
+                "isArchiving": false,
                 "isClosed": false,
                 "settings": Object {
                   "mode": "COMMENTS",
