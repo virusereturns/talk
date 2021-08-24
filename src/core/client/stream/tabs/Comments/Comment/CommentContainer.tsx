@@ -55,6 +55,7 @@ import { CommentContainer_viewer as ViewerData } from "coral-stream/__generated_
 import { useCommentSeen, useCommentSeenEnabled } from "../commentSeen";
 import { isPublished } from "../helpers";
 import AnsweredTag from "./AnsweredTag";
+import { ArchivedReportFlowContainer } from "./ArchivedReportFlow";
 import AuthorBadges from "./AuthorBadges";
 import ButtonsBar from "./ButtonsBar";
 import computeCommentElementID from "./computeCommentElementID";
@@ -678,9 +679,7 @@ export const CommentContainer: FunctionComponent<Props> = ({
                   {!isViewerBanned &&
                     !isViewerSuspended &&
                     !isViewerWarned &&
-                    !hideReportButton &&
-                    !story.isArchived &&
-                    !story.isArchiving && (
+                    !hideReportButton && (
                       <ReportButton
                         onClick={toggleShowReportFlow}
                         open={showReportFlow}
@@ -701,13 +700,16 @@ export const CommentContainer: FunctionComponent<Props> = ({
             </>
           }
         />
-        {showReportFlow && (
+        {showReportFlow && !story.isArchived && !story.isArchiving && (
           <ReportFlowContainer
             viewer={viewer}
             comment={comment}
             settings={settings}
             onClose={toggleShowReportFlow}
           />
+        )}
+        {showReportFlow && story.isArchived && !story.isArchiving && (
+          <ArchivedReportFlowContainer settings={settings} comment={comment} />
         )}
         {showReplyDialog && !comment.deleted && (
           <ReplyCommentFormContainer
@@ -822,6 +824,7 @@ const enhanced = withContext(({ eventEmitter }) => ({ eventEmitter }))(
           ...UsernameContainer_comment
           ...UsernameWithPopoverContainer_comment
           ...UserTagsContainer_comment
+          ...ArchivedReportFlowContainer_comment
         }
       `,
       settings: graphql`
@@ -838,6 +841,7 @@ const enhanced = withContext(({ eventEmitter }) => ({ eventEmitter }))(
           ...ReportFlowContainer_settings
           ...UsernameWithPopoverContainer_settings
           ...UserTagsContainer_settings
+          ...ArchivedReportFlowContainer_settings
         }
       `,
     })(CommentContainer)
