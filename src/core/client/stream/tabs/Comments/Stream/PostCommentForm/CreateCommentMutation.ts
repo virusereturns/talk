@@ -152,6 +152,7 @@ graphql`
 graphql`
   fragment CreateCommentMutation_story on Story {
     id
+    url
     viewerRating {
       id
       tags {
@@ -336,6 +337,7 @@ export const CreateCommentMutation = createMutation(
                   },
                   story: {
                     id: input.storyID,
+                    url: story.url,
                     settings: {
                       moderation: storySettings.moderation,
                       mode: storySettings.mode,
