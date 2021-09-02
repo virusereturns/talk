@@ -35,7 +35,7 @@ comments-bannedInfo-violatedCommunityGuidelines =
   Ya no podrás comentar, respetar o reportar comentarios. Si usted piensa
   que esto se ha hecho por error, póngase en contacto con nuestro equipo de la comunidad.
 
-comments-noCommentsYet = ¿No hay comentarios. Por qué no escribes uno?
+comments-noCommentsYet = No hay comentarios. ¿Por qué no escribes uno?
 
 comments-streamQuery-storyNotFound = Historia no encontrada
 
