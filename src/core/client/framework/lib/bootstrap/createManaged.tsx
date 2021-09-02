@@ -346,7 +346,7 @@ export default async function createManaged({
   initLocalState = noop,
   localesData,
   pym,
-  eventEmitter = new EventEmitter2({ wildcard: true, maxListeners: undefined }),
+  eventEmitter = new EventEmitter2({ wildcard: true, maxListeners: 1000 }),
   bundle,
   bundleConfig = {},
   tokenRefreshProvider,
